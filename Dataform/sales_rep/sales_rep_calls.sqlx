@@ -1,0 +1,39 @@
+with base as (
+  select
+    rep_id
+  , call_id
+  , client_id
+  , client_region
+  , call_duration as call_duration_in_minutes
+  , call_started_at as call_started_at_timestamp
+  , call_ended_at as call_ended_at_timestamp
+  , updated_at as table_updated_at
+  from ${ref("call_center_input_data")} 
+)
+
+SELECT * 
+from base
+${ when(incremental(), `where table_updated_at >= (select max(table_updated_at) from ${self()})`) }
+
+
+config {
+  type: "incremental",
+  schema: "sales_rep",
+  uniqueKey: ["table_updated_at", "rep_id", "call_id"],
+  assertions: {
+  nonNull: ["table_updated_at", "rep_id", "call_id"]
+  },
+  description: "This table contains call center data with information about the representative, the client, and the call details.",
+  columns:
+  {
+    rep_id: "Unique identifier for the sales representative.",
+    call_id: "Unique identifier for each call made by a representative.",
+    client_id: "Unique identifier for the client involved in the call.",
+    client_region: "Geographical region of the client making or receiving the call.",
+    call_duration_in_minutes: "Duration of the call in minutes, calculated based on start and end times.",
+    call_started_at_timestamp: "Timestamp when the call started.",
+    call_ended_at_timestamp: "Timestamp when the call ended.",
+    table_updated_at: "Timestamp indicating when the data was last updated."
+  }
+}
+
