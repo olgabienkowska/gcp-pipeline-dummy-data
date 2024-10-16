@@ -1,0 +1,7 @@
+config {
+  type: "declaration",
+  database: "call-center-project-438709",
+  schema: "stg",
+  name: "call_center_input_data"
+}
+-- `call-center-project-438709.stg.call_center_input_data`
